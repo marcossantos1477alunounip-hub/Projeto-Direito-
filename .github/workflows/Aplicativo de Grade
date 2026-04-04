@@ -1,0 +1,221 @@
+import React, { useState, useMemo } from 'react';
+import { BookOpen, Clock, ChevronRight, GraduationCap } from 'lucide-react';
+
+// Dados da Grade Curricular estruturados para uso em aplicações
+const gradeCurricular = [
+  { semestre: 1, codigo: "572Q", nome: "ESTUDOS DISCIPLINARES", carga: "10" },
+  { semestre: 1, codigo: "903U", nome: "INST JUDICIARIAS E ETICA", carga: "80" },
+  { semestre: 1, codigo: "913U", nome: "PSICOLOGIA JURIDICA", carga: "40" },
+  { semestre: 1, codigo: "923U", nome: "FILOSOFIA", carga: "80" },
+  { semestre: 1, codigo: "933U", nome: "INTERPRETACAO E PROD DE TEXTOS", carga: "40" },
+  { semestre: 1, codigo: "943U", nome: "HOMEM E SOCIEDADE", carga: "40" },
+  { semestre: 1, codigo: "992U", nome: "ECONOMIA", carga: "40" },
+  { semestre: 1, codigo: "615W", nome: "ATIVIDADES PRATICAS SUPERVIS", carga: "60" },
+  { semestre: 2, codigo: "206V", nome: "COMUNICACAO E EXPRESSAO", carga: "40" },
+  { semestre: 2, codigo: "216V", nome: "TEORIA GERAL DO DIREITO CIVIL", carga: "80" },
+  { semestre: 2, codigo: "226V", nome: "HIST DO DIR E OS DIR HUMANOS", carga: "40" },
+  { semestre: 2, codigo: "236V", nome: "CIENCIA POLITICA", carga: "40" },
+  { semestre: 2, codigo: "246V", nome: "DIREITOS FUNDAMENTAIS", carga: "40" },
+  { semestre: 2, codigo: "256V", nome: "TEORIA GERAL DO CRIME", carga: "40" },
+  { semestre: 2, codigo: "295V", nome: "CIENCIAS SOCIAIS", carga: "40" },
+  { semestre: 2, codigo: "567Q", nome: "ESTUDOS DISCIPLINARES", carga: "10" },
+  { semestre: 2, codigo: "519W", nome: "ATIVIDADES PRATICAS SUPERVIS", carga: "60" },
+  { semestre: 3, codigo: "587Q", nome: "ESTUDOS DISCIPLINARES", carga: "10" },
+  { semestre: 3, codigo: "903V", nome: "ILICITUDE E CULPABILIDADE", carga: "40" },
+  { semestre: 3, codigo: "913V", nome: "TEORIA DA EMPRESA", carga: "60" },
+  { semestre: 3, codigo: "923V", nome: "TEORIA GERAL DO PROCESSO", carga: "40" },
+  { semestre: 3, codigo: "933V", nome: "HERMENEUTICA", carga: "20" },
+  { semestre: 3, codigo: "943V", nome: "FATOS E NEGOCIOS JURIDICOS", carga: "80" },
+  { semestre: 3, codigo: "953V", nome: "ORGANIZACAO DO ESTADO", carga: "80" },
+  { semestre: 3, codigo: "963V", nome: "ATIVIDADES PRATICAS SUPERVIS", carga: "60" },
+  { semestre: 4, codigo: "508Q", nome: "ESTUDOS DISCIPLINARES", carga: "10" },
+  { semestre: 4, codigo: "904V", nome: "TEORIA DAS PENAS", carga: "40" },
+  { semestre: 4, codigo: "914V", nome: "TITULOS DE CREDITO", carga: "40" },
+  { semestre: 4, codigo: "924V", nome: "TEORIA GERAL DO PROC CIVIL", carga: "40" },
+  { semestre: 4, codigo: "934V", nome: "CONTROLE E CONSTITUCIONALIDADE", carga: "40" },
+  { semestre: 4, codigo: "973V", nome: "BASES CONST DA ADM PUBLICA", carga: "80" },
+  { semestre: 4, codigo: "983V", nome: "TEORIA GERAL DAS OBRIGACOES", carga: "60" },
+  { semestre: 4, codigo: "993V", nome: "RESPONSABILIDADE CIVIL", carga: "20" },
+  { semestre: 4, codigo: "D432", nome: "GEST EQUIPES TRAB (OPT)", carga: "20" },
+  { semestre: 4, codigo: "D703", nome: "REL ETNICO-RAC/AFRODESC (OPT)", carga: "20" },
+  { semestre: 4, codigo: "D832", nome: "EDUCACAO AMBIENTAL (OPT)", carga: "20" },
+  { semestre: 4, codigo: "944V", nome: "ATIVIDADES PRATICAS SUPERVIS", carga: "60" },
+  { semestre: 5, codigo: "528Q", nome: "ESTUDOS DISCIPLINARES", carga: "10" },
+  { semestre: 5, codigo: "905V", nome: "EXTINCAO DA PUNIBILIDADE", carga: "40" },
+  { semestre: 5, codigo: "915V", nome: "PROCESSO CIVIL DE CONHECIMENTO", carga: "40" },
+  { semestre: 5, codigo: "954V", nome: "TEORIA GERAL DO PROCESSO PENAL", carga: "40" },
+  { semestre: 5, codigo: "964V", nome: "METODOLOGIA DO TRAB CIENTIFICO", carga: "40" },
+  { semestre: 5, codigo: "974V", nome: "BASES PROC ADMINISTRACAO PUBL", carga: "40" },
+  { semestre: 5, codigo: "984V", nome: "TEORIA GERAL DO DIREITO TRIBUT", carga: "40" },
+  { semestre: 5, codigo: "994V", nome: "DIREITO DAS OBRIGACOES", carga: "80" },
+  { semestre: 5, codigo: "925V", nome: "ATIVIDADES PRATICAS SUPERVIS", carga: "60" },
+  { semestre: 6, codigo: "548Q", nome: "ESTUDOS DISCIPLINARES", carga: "10" },
+  { semestre: 6, codigo: "822X", nome: "DIREITO E GLOBALIZACAO", carga: "40" },
+  { semestre: 6, codigo: "935V", nome: "CONTRATOS EM GERAL", carga: "80" },
+  { semestre: 6, codigo: "945V", nome: "PROTECAO PENAL AO INDIVIDUO", carga: "40" },
+  { semestre: 6, codigo: "955V", nome: "PROC CIVIL ORDINARIO/SUMARIO", carga: "40" },
+  { semestre: 6, codigo: "965V", nome: "ACAO PENAL", carga: "40" },
+  { semestre: 6, codigo: "975V", nome: "DIREITO INDIVIDUAL DO TRABALHO", carga: "40" },
+  { semestre: 6, codigo: "985V", nome: "TRIBUTOS EM ESPECIE", carga: "40" },
+  { semestre: 6, codigo: "995V", nome: "ATIVIDADES PRATICAS SUPERVIS", carga: "60" },
+  { semestre: 7, codigo: "568Q", nome: "ESTUDOS DISCIPLINARES", carga: "10" },
+  { semestre: 7, codigo: "832X", nome: "COMERCIO INTERNACIONAL", carga: "40" },
+  { semestre: 7, codigo: "906V", nome: "FALENCIA RECUPER DE EMPRESA", carga: "40" },
+  { semestre: 7, codigo: "916V", nome: "CONTRATOS CIVIL E EMPRESARIAL", carga: "80" },
+  { semestre: 7, codigo: "926V", nome: "PROTECAO PENAL AO PATRIMONIO", carga: "40" },
+  { semestre: 7, codigo: "936V", nome: "RECURSOS CIVIS", carga: "40" },
+  { semestre: 7, codigo: "946V", nome: "PROVAS PROCESSUAIS PENAIS", carga: "40" },
+  { semestre: 7, codigo: "956V", nome: "DIREITO TUTELAR COLETIVO TRAB", carga: "40" },
+  { semestre: 7, codigo: "966V", nome: "ATIVIDADES PRATICAS SUPERVIS", carga: "60" },
+  { semestre: 8, codigo: "445Y", nome: "DIREITO PREVIDENCIARIO", carga: "20" },
+  { semestre: 8, codigo: "455Y", nome: "DIREITOS REAIS", carga: "80" },
+  { semestre: 8, codigo: "588Q", nome: "ESTUDOS DISCIPLINARES", carga: "10" },
+  { semestre: 8, codigo: "842X", nome: "DIREITO DA INFORMATICA", carga: "40" },
+  { semestre: 8, codigo: "907V", nome: "EXECUCAO CIVIL", carga: "40" },
+  { semestre: 8, codigo: "927V", nome: "PROCESSO CONHECIMENTO TRABALHO", carga: "40" },
+  { semestre: 8, codigo: "937V", nome: "RECURSOS E EXECUCAO PENAL", carga: "40" },
+  { semestre: 8, codigo: "976V", nome: "METODOS ALTERN RESOL CONFLITOS", carga: "20" },
+  { semestre: 8, codigo: "996V", nome: "PROT PENAL AOS INTER SOCIAIS", carga: "40" },
+  { semestre: 8, codigo: "947V", nome: "ATIVIDADES PRATICAS SUPERVIS", carga: "60" },
+  { semestre: 9, codigo: "509Q", nome: "ESTUDOS DISCIPLINARES", carga: "20" },
+  { semestre: 9, codigo: "852X", nome: "RELACOES PRIVADAS E INTERNET", carga: "40" },
+  { semestre: 9, codigo: "908V", nome: "DIREITO DO CONSUMIDOR", carga: "20" },
+  { semestre: 9, codigo: "918V", nome: "DIREITO AMBIENTAL", carga: "20" },
+  { semestre: 9, codigo: "957V", nome: "DIREITO INTERNACIONAL PUBLICO", carga: "40" },
+  { semestre: 9, codigo: "967V", nome: "DIREITO DE FAMILIA", carga: "80" },
+  { semestre: 9, codigo: "977V", nome: "PROT PENAL INTER ADM PUBLICA", carga: "40" },
+  { semestre: 9, codigo: "987V", nome: "CAUTELARES/TUTELA DE URGENCIA", carga: "40" },
+  { semestre: 9, codigo: "997V", nome: "EXECUCAO TRAB PROCED ESPECIAIS", carga: "40" },
+  { semestre: 9, codigo: "D403", nome: "TOP ESP FUND FIL TEO DIR (OPT)", carga: "80" },
+  { semestre: 9, codigo: "D413", nome: "TOP ESP DIR PUBLICO (OPT)", carga: "80" },
+  { semestre: 9, codigo: "928V", nome: "ATIVIDADES PRATICAS SUPERVIS", carga: "60" },
+  { semestre: 10, codigo: "336G", nome: "ATIVIDADES COMPLEMENTARES", carga: "400" },
+  { semestre: 10, codigo: "529Q", nome: "ESTUDOS DISCIPLINARES", carga: "20" },
+  { semestre: 10, codigo: "862X", nome: "DIREITO ECONOMICO", carga: "40" },
+  { semestre: 10, codigo: "872X", nome: "ESTRUT DE MERCADO E CONCORRENC", carga: "40" },
+  { semestre: 10, codigo: "938V", nome: "DIREITO INTERNACIONAL PRIVADO", carga: "40" },
+  { semestre: 10, codigo: "948V", nome: "DIR CRIANCA/ADOLESC/EST IDOSO", carga: "20" },
+  { semestre: 10, codigo: "958V", nome: "TOPICOS CONSTITUCIONAIS", carga: "40" },
+  { semestre: 10, codigo: "968V", nome: "DIREITO DAS SUCESSOES", carga: "60" },
+  { semestre: 10, codigo: "978V", nome: "LEGISLACAO PENAL EXTRAVAGANTE", carga: "40" },
+  { semestre: 10, codigo: "988M", nome: "TRABALHO DE CURSO", carga: "60" },
+  { semestre: 10, codigo: "988V", nome: "PROCEDIMENTOS ESPECIAIS CIVIS", carga: "40" },
+  { semestre: 10, codigo: "998M", nome: "ESTAGIO SUPERVISIONADO", carga: "300" },
+  { semestre: 10, codigo: "D443", nome: "TOP ESP DIR PRIVADO (OPT)", carga: "80" },
+  { semestre: 10, codigo: "D453", nome: "TOP ESP TUT DIF/COLETIVAS(OPT)", carga: "80" },
+  { semestre: 10, codigo: "998V", nome: "ATIVIDADES PRATICAS SUPERVIS", carga: "-" }
+];
+
+export default function App() {
+  const [semestreAtual, setSemestreAtual] = useState(1);
+
+  // Lista única de semestres (1 a 10)
+  const semestres = useMemo(() => {
+    return [...new Set(gradeCurricular.map(d => d.semestre))].sort((a, b) => a - b);
+  }, []);
+
+  // Filtra as disciplinas pelo semestre selecionado
+  const disciplinasFiltradas = useMemo(() => {
+    return gradeCurricular.filter(d => d.semestre === semestreAtual);
+  }, [semestreAtual]);
+
+  // Calcula carga horária total do semestre selecionado
+  const cargaHorariaTotal = useMemo(() => {
+    return disciplinasFiltradas.reduce((total, d) => {
+      const carga = parseInt(d.carga) || 0;
+      return total + carga;
+    }, 0);
+  }, [disciplinasFiltradas]);
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans sm:p-6 flex justify-center">
+      {/* Container simulando a tela de um celular/aplicativo */}
+      <div className="w-full max-w-md bg-white sm:rounded-3xl sm:shadow-xl overflow-hidden flex flex-col h-[100dvh] sm:h-[850px] border border-slate-200 relative">
+        
+        {/* Cabeçalho do App */}
+        <header className="bg-slate-900 text-white p-6 pb-8 rounded-b-3xl shadow-md z-10">
+          <div className="flex items-center gap-3 mb-2">
+            <GraduationCap className="w-8 h-8 text-blue-400" />
+            <h1 className="text-xl font-bold tracking-tight">Grade Curricular</h1>
+          </div>
+          <p className="text-slate-300 text-sm">Curso de Direito</p>
+        </header>
+
+        {/* Navegação de Semestres (Scroll Horizontal) */}
+        <div className="px-4 -mt-5 z-20">
+          <div className="bg-white rounded-xl shadow-md border border-slate-100 p-2 flex overflow-x-auto gap-2 no-scrollbar">
+            {semestres.map(sem => (
+              <button
+                key={sem}
+                onClick={() => setSemestreAtual(sem)}
+                className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-200 ${
+                  semestreAtual === sem 
+                    ? 'bg-blue-600 text-white shadow-sm' 
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                {sem}º Sem
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Resumo do Semestre */}
+        <div className="px-6 pt-6 pb-2 flex justify-between items-end">
+          <h2 className="text-lg font-bold text-slate-800">
+            {semestreAtual}º Semestre
+          </h2>
+          <div className="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {cargaHorariaTotal}h totais
+          </div>
+        </div>
+
+        {/* Lista de Disciplinas */}
+        <div className="flex-1 overflow-y-auto p-4 pt-2 pb-24 space-y-3 bg-slate-50">
+          {disciplinasFiltradas.map((disciplina, index) => (
+            <div 
+              key={`${disciplina.codigo}-${index}`}
+              className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group flex items-center gap-4"
+            >
+              <div className="bg-blue-50 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              
+              <div className="flex-1">
+                <div className="flex justify-between items-start mb-1">
+                  <span className="text-xs font-bold text-slate-400 tracking-wider">
+                    {disciplina.codigo}
+                  </span>
+                  <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                    {disciplina.carga}h
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-slate-800 leading-snug pr-2">
+                  {disciplina.nome}
+                </h3>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Menu Inferior Fictício (Para dar cara de App) */}
+        <div className="absolute bottom-0 w-full bg-white border-t border-slate-200 px-6 py-4 flex justify-between items-center text-slate-400">
+          <div className="flex flex-col items-center gap-1 text-blue-600">
+            <BookOpen className="w-6 h-6" />
+            <span className="text-[10px] font-bold">Grade</span>
+          </div>
+          <div className="flex flex-col items-center gap-1 hover:text-slate-600 cursor-pointer transition-colors">
+            <GraduationCap className="w-6 h-6" />
+            <span className="text-[10px] font-bold">Curso</span>
+          </div>
+          <div className="flex flex-col items-center gap-1 hover:text-slate-600 cursor-pointer transition-colors">
+            <Clock className="w-6 h-6" />
+            <span className="text-[10px] font-bold">Horários</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
