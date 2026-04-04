@@ -1,0 +1,239 @@
+import React, { useState } from 'react';
+import { 
+  BookOpen, 
+  CheckCircle2, 
+  AlertTriangle, 
+  XCircle, 
+  ShieldCheck, 
+  Info,
+  Scale,
+  Gavel,
+  ChevronRight
+} from 'lucide-react';
+
+export default function App() {
+  const [abaAtiva, setAbaAtiva] = useState('inicio');
+
+  const conteudos = {
+    inicio: {
+      titulo: "Negócio Jurídico",
+      subtitulo: "Arts. 104 a 166 e 185 a 188 do CC",
+      icon: <Scale className="w-8 h-8 text-blue-400" />,
+      cor: "bg-slate-900"
+    },
+    validade: {
+      titulo: "Requisitos de Validade",
+      artigos: "Arts. 104 – 114",
+      icon: <CheckCircle2 className="w-6 h-6 text-emerald-500" />,
+      items: [
+        { t: "Agente capaz", d: "Plena capacidade de fato e de direito." },
+        { t: "Objeto lícito", d: "Possível, determinado ou determinável." },
+        { t: "Forma prescrita", d: "Ou não defesa (proibida) em lei." }
+      ],
+      obs: "A ausência de qualquer requisito gera NULIDADE."
+    },
+    vicios: {
+      titulo: "Vícios de Consentimento",
+      artigos: "Arts. 115 – 165",
+      icon: <AlertTriangle className="w-6 h-6 text-amber-500" />,
+      items: [
+        { t: "Erro", d: "Falsa percepção da realidade." },
+        { t: "Dolo", d: "Indução maliciosa ao erro." },
+        { t: "Coação", d: "Pressão física ou moral grave." },
+        { t: "Estado de Perigo", d: "Obrigação excessiva para evitar dano." },
+        { t: "Lesão", d: "Desproporção por necessidade/inexperiência." },
+        { t: "Fraude contra Credores", d: "Prejuízo deliberado aos credores." }
+      ],
+      consequencia: "Torna o negócio ANULÁVEL."
+    },
+    nulidades: {
+      titulo: "Nulidade vs Anulabilidade",
+      artigos: "Arts. 166 – 178",
+      icon: <XCircle className="w-6 h-6 text-red-500" />,
+      secoes: [
+        {
+          label: "Nulidade Absoluta (Art. 166)",
+          cor: "text-red-600",
+          desc: "Vícios graves. Não convalesce com o tempo. Efeito Ex Tunc."
+        },
+        {
+          label: "Anulabilidade (Art. 171)",
+          cor: "text-amber-600",
+          desc: "Vícios de vontade. Pode ser confirmada. Prazo decadencial."
+        }
+      ]
+    },
+    atos: {
+      titulo: "Atos e Ilicitude",
+      artigos: "Arts. 185 – 188",
+      icon: <ShieldCheck className="w-6 h-6 text-indigo-500" />,
+      items: [
+        { t: "Art. 186", d: "Ato Ilícito: violação de direito + dano." },
+        { t: "Art. 187", d: "Abuso de Direito: excede limites da boa-fé." },
+        { t: "Art. 188", d: "Excludentes: Legítima defesa, exercício regular de direito e estado de necessidade." }
+      ]
+    }
+  };
+
+  const renderConteudo = () => {
+    switch (abaAtiva) {
+      case 'validade':
+        return (
+          <div className="p-6 space-y-4">
+            <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-xl mb-4">
+              <h3 className="font-bold text-emerald-800">Regra de Ouro (Art. 104)</h3>
+            </div>
+            {conteudos.validade.items.map((item, i) => (
+              <div key={i} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                <h4 className="font-bold text-slate-800">{item.t}</h4>
+                <p className="text-sm text-slate-600">{item.d}</p>
+              </div>
+            ))}
+            <p className="text-xs text-slate-400 italic mt-4 underline">{conteudos.validative?.obs}</p>
+          </div>
+        );
+      case 'vicios':
+        return (
+          <div className="p-6 space-y-3">
+            <p className="text-sm font-medium text-amber-700 bg-amber-50 p-3 rounded-lg mb-2 italic">
+              "O negócio existe, mas pode ser invalidado judicialmente."
+            </p>
+            {conteudos.vicios.items.map((item, i) => (
+              <div key={i} className="flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-100">
+                <div className="mt-1"><Info className="w-4 h-4 text-amber-400" /></div>
+                <div>
+                  <h4 className="font-bold text-sm text-slate-800">{item.t}</h4>
+                  <p className="text-xs text-slate-500">{item.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      case 'nulidades':
+        return (
+          <div className="p-6 space-y-6">
+            {conteudos.nulidades.secoes.map((sec, i) => (
+              <div key={i} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <h4 className={`font-bold mb-2 ${sec.cor}`}>{sec.label}</h4>
+                <p className="text-sm text-slate-600 leading-relaxed">{sec.desc}</p>
+              </div>
+            ))}
+            <div className="bg-slate-900 p-4 rounded-xl text-white">
+              <h4 className="text-xs font-bold uppercase tracking-wider mb-2 text-slate-400">Dica de Prova</h4>
+              <p className="text-sm">Fraude contra credores: requer ação Pauliana para anulação.</p>
+            </div>
+          </div>
+        );
+      case 'atos':
+        return (
+          <div className="p-6 space-y-4">
+            {conteudos.atos.items.map((item, i) => (
+              <div key={i} className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                <div className="flex justify-between mb-1">
+                   <span className="text-xs font-bold text-indigo-600">{item.t}</span>
+                </div>
+                <p className="text-sm text-slate-700 font-medium">{item.d}</p>
+              </div>
+            ))}
+          </div>
+        );
+      default:
+        return (
+          <div className="p-8 flex flex-col items-center text-center space-y-6">
+            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
+              <Gavel className="w-10 h-10" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800">Revisão de Direito Civil</h2>
+              <p className="text-slate-500 mt-2">Toque nas abas abaixo para navegar pelos conceitos fundamentais para a sua prova.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <div className="bg-blue-50 p-4 rounded-2xl text-left border border-blue-100">
+                <span className="text-2xl font-bold text-blue-600">104</span>
+                <p className="text-xs font-bold text-blue-800">Artigo Chave</p>
+              </div>
+              <div className="bg-slate-50 p-4 rounded-2xl text-left border border-slate-100">
+                <span className="text-2xl font-bold text-slate-600">Ex Tunc</span>
+                <p className="text-xs font-bold text-slate-800">Efeito Retroativo</p>
+              </div>
+            </div>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-100 font-sans sm:p-6 flex justify-center">
+      <div className="w-full max-w-md bg-white sm:rounded-3xl sm:shadow-2xl overflow-hidden flex flex-col h-[100dvh] sm:h-[800px] border border-slate-200 relative">
+        
+        {/* Cabeçalho Dinâmico */}
+        <header className={`${abaAtiva === 'inicio' ? 'bg-slate-900' : 'bg-white border-b'} p-6 transition-colors duration-300`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {abaAtiva === 'inicio' ? (
+                <Scale className="w-8 h-8 text-blue-400" />
+              ) : (
+                <button onClick={() => setAbaAtiva('inicio')} className="p-2 hover:bg-slate-100 rounded-full">
+                  <ChevronRight className="w-6 h-6 text-slate-400 rotate-180" />
+                </button>
+              )}
+              <div>
+                <h1 className={`text-lg font-bold ${abaAtiva === 'inicio' ? 'text-white' : 'text-slate-900'}`}>
+                  {conteudos[abaAtiva]?.titulo || "Revisão Direito"}
+                </h1>
+                <p className={`text-xs ${abaAtiva === 'inicio' ? 'text-slate-400' : 'text-blue-600 font-semibold'}`}>
+                  {conteudos[abaAtiva]?.artigos || "Manual de Apoio"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Área de Conteúdo */}
+        <main className="flex-1 overflow-y-auto bg-white">
+          {renderConteudo()}
+        </main>
+
+        {/* Tab Bar Inferior */}
+        <nav className="bg-white border-t border-slate-100 px-4 py-3 flex justify-around items-center">
+          <TabButton 
+            active={abaAtiva === 'validade'} 
+            onClick={() => setAbaAtiva('validade')}
+            icon={<CheckCircle2 className="w-5 h-5" />}
+            label="Validade"
+          />
+          <TabButton 
+            active={abaAtiva === 'vicios'} 
+            onClick={() => setAbaAtiva('vicios')}
+            icon={<AlertTriangle className="w-5 h-5" />}
+            label="Vícios"
+          />
+          <TabButton 
+            active={abaAtiva === 'nulidades'} 
+            onClick={() => setAbaAtiva('nulidades')}
+            icon={<XCircle className="w-5 h-5" />}
+            label="Nulidade"
+          />
+          <TabButton 
+            active={abaAtiva === 'atos'} 
+            onClick={() => setAbaAtiva('atos')}
+            icon={<ShieldCheck className="w-5 h-5" />}
+            label="Ilícitos"
+          />
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+function TabButton({ active, onClick, icon, label }) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`flex flex-col items-center gap-1 transition-all duration-200 ${active ? 'text-blue-600 scale-110' : 'text-slate-400 hover:text-slate-600'}`}
+    >
+      {icon}
+      <span className="text-[10px] font-bold uppercase tracking-tighter">{label}</span>
+    </button>
+  );
+}
