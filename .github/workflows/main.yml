@@ -1,0 +1,275 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://SEU-PROJETO.supabase.co';
+const supabaseKey = 'SUA-CHAVE';
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
+import { useState } from 'react';
+import { supabase } from './supabase';
+
+export default function Auth({ setSession }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  async function login() {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (data) setSession(data.session);
+    if (error) alert(error.message);
+  }
+
+  async function register() {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    if (error) alert(error.message);
+    else alert('Cadastro realizado!');
+  }
+
+  return (
+    <div>
+      <h2>Login</h2>
+      <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+      <input placeholder="Senha" type="password" onChange={(e) => setPassword(e.target.value)} />
+      <button onClick={login}>Entrar</button>
+      <button onClick={register}>Cadastrar</button>
+    </div>
+  );
+}
+import { useEffect, useState } from 'react';
+import { supabase } from './supabase';
+import Auth from './Auth';
+
+function App() {
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+    });
+  }, []);
+
+  if (!session) return <Auth setSession={setSession} />;
+
+  return (
+    <div>
+      <h1>📚 Marcos Cruz SantosJurídico</h1>
+      <button onClick={() => supabase.auth.signOut()}>
+        Sair
+      </button>
+    </div>
+  );
+}
+
+export default App;
+npm install tailwindcss
+<div className="min-h-screen bg-gray-100 p-6">
+  <div className="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+    <h1 className="text-2xl font-bold mb-4">📚 WeLib Jurídico</h1>
+
+    <input className="w-full p-2 border rounded mb-2" placeholder="Título" />
+    <textarea className="w-full p-2 border rounded mb-2" placeholder="Conteúdo" />
+
+    <button className="bg-blue-600 text-white px-4 py-2 rounded">
+      Salvar
+    </button>
+  </div>
+</div>
+npm run build
+4. ESTRUTURA DE TCC PRONTA
+📘 Título sugerido:
+
+“Desenvolvimento de Plataforma Jurídica Colaborativa Baseada em Inteligência Digital para Estudantes de Direito”
+
+📚 CAPÍTULOS
+🔹 CAPÍTULO 1 – INTRODUÇÃO
+Problema: dificuldade de acesso organizado ao conteúdo jurídico
+Objetivo: criar plataforma digital jurídica
+🔹 CAPÍTULO 2 – FUNDAMENTAÇÃO TEÓRICA
+Direito Digital
+Acesso à informação jurídica
+Ensino jurídico moderno
+
+Autores que você pode citar:
+
+Hans Kelsen
+Miguel Reale
+🔹 CAPÍTULO 3 – TECNOLOGIA
+Banco de dados (PostgreSQL)
+Backend (Supabase)
+Frontend (React)
+🔹 CAPÍTULO 4 – DESENVOLVIMENTO DO SISTEMA
+Estrutura do app
+Telas (login, conteúdo, busca)
+Funcionalidades
+🔹 CAPÍTULO 5 – RESULTADOS
+Testes
+Usabilidade
+Impacto no aprendizado
+🔹 CAPÍTULO 6 – CONCLUSÃO
+Benefícios para estudantes
+Futuro: IA jurídica
+🔥 DIFERENCIAL (SE VOCÊ USAR ISSO → NOTA ALTA)
+
+Inclua no seu projeto:
+
+🤖 IA que resume leis
+📊 sistema de estudo
+⚖️ base de jurisprudência
+Marcos Cruz Santos Direito-juridico/
+ ├── src/
+ │   ├── App.js
+ │   ├── supabase.js
+ │   ├── Auth.js
+ │   ├── Dashboard.js
+ │   ├── index.js
+ ├── package.json
+npx create-react-app Marcos Cruz Santos Direito-juridico
+cd Marcos Cruz Santos Direito-juridico
+npm install @supabase/supabase-js
+
+campo	tipo
+id	uuid (pk)
+titulo	text
+texto	text
+categoria	text
+user_id	uuid
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://SEU-PROJETO.supabase.co';
+const supabaseKey = 'SUA-CHAVE';
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
+import { useState } from 'react';
+import { supabase } from './supabase';
+
+export default function Auth({ setSession }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  async function login() {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) return alert(error.message);
+    setSession(data.session);
+  }
+
+  async function register() {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    if (error) alert(error.message);
+    else alert('Conta criada!');
+  }
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h2>Login</h2>
+      <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} /><br />
+      <input type="password" placeholder="Senha" onChange={(e) => setPassword(e.target.value)} /><br />
+      <button onClick={login}>Entrar</button>
+      <button onClick={register}>Cadastrar</button>
+    </div>
+  );
+}
+import { useEffect, useState } from 'react';
+import { supabase } from './supabase';
+
+export default function Dashboard({ session }) {
+  const [conteudos, setConteudos] = useState([]);
+  const [titulo, setTitulo] = useState('');
+  const [texto, setTexto] = useState('');
+  const [categoria, setCategoria] = useState('');
+
+  useEffect(() => {
+    fetchConteudos();
+  }, []);
+
+  async function fetchConteudos() {
+    const { data } = await supabase
+      .from('conteudos')
+      .select('*')
+      .eq('user_id', session.user.id);
+
+    setConteudos(data);
+  }
+
+  async function addConteudo() {
+    await supabase.from('conteudos').insert([
+      {
+        titulo,
+        texto,
+        categoria,
+        user_id: session.user.id,
+      },
+    ]);
+
+    setTitulo('');
+    setTexto('');
+    setCategoria('');
+    fetchConteudos();
+  }
+
+  async function deleteConteudo(id) {
+    await supabase.from('conteudos').delete().eq('id', id);
+    fetchConteudos();
+  }
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>📚 WeLib Jurídico</h1>
+
+      <button onClick={() => supabase.auth.signOut()}>
+        Sair
+      </button>
+
+      <h2>Novo Conteúdo</h2>
+      <input placeholder="Título" value={titulo} onChange={(e) => setTitulo(e.target.value)} /><br />
+      <input placeholder="Categoria" value={categoria} onChange={(e) => setCategoria(e.target.value)} /><br />
+      <textarea placeholder="Texto" value={texto} onChange={(e) => setTexto(e.target.value)} /><br />
+
+      <button onClick={addConteudo}>Salvar</button>
+
+      <h2>Seus Conteúdos</h2>
+      {conteudos.map((item) => (
+        <div key={item.id} style={{ border: '1px solid #ccc', margin: 10, padding: 10 }}>
+          <h3>{item.titulo}</h3>
+          <p><b>{item.categoria}</b></p>
+          <p>{item.texto}</p>
+          <button onClick={() => deleteConteudo(item.id)}>Excluir</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+import { useEffect, useState } from 'react';
+import { supabase } from './supabase';
+import Auth from './Auth';
+import Dashboard from './Dashboard';
+
+function App() {
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
+
+  if (!session) return <Auth setSession={setSession} />;
+
+  return <Dashboard session={session} />;
+}
+
+export default App;
+npm start
