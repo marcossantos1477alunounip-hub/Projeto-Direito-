@@ -1,275 +1,392 @@
-import { createClient } from '@supabase/supabase-js';
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth';
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
+import { BookOpen, Scale, Trash2, LogOut, Plus, Search, FileText, Tag } from 'lucide-react';
 
-const supabaseUrl = 'https://SEU-PROJETO.supabase.co';
-const supabaseKey = 'SUA-CHAVE';
+// ==========================================
+// CONFIGURAÇÃO DO BANCO DE DADOS E AUTENTICAÇÃO
+// ==========================================
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+// Atualizado o appId para refletir o novo nome do projeto
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'marcos-cruz-santos-juridico';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
-import { useState } from 'react';
-import { supabase } from './supabase';
-
-export default function Auth({ setSession }) {
+// ==========================================
+// COMPONENTE DE AUTENTICAÇÃO (LOGIN/CADASTRO)
+// ==========================================
+function AuthScreen({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  async function login() {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (data) setSession(data.session);
-    if (error) alert(error.message);
-  }
-
-  async function register() {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (error) alert(error.message);
-    else alert('Cadastro realizado!');
-  }
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    // Simula o tempo de rede e chama a autenticação segura do ambiente
+    setTimeout(() => {
+      onLogin();
+    }, 800);
+  };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-      <input placeholder="Senha" type="password" onChange={(e) => setPassword(e.target.value)} />
-      <button onClick={login}>Entrar</button>
-      <button onClick={register}>Cadastrar</button>
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <Scale className="mx-auto h-16 w-16 text-indigo-700" />
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900 leading-tight">
+          Direito Jurídico
+          <span className="block mt-2 text-xl font-semibold text-indigo-600">Marcos Cruz Santos</span>
+        </h2>
+        <p className="mt-4 text-center text-sm text-slate-600">
+          Plataforma Jurídica Colaborativa Baseada em Inteligência Digital
+        </p>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-slate-100">
+          <form className="space-y-6" onSubmit={handleAuth}>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Email Acadêmico</label>
+              <div className="mt-1">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="appearance-none block w-full px-3 py-3 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="seu@email.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Senha</label>
+              <div className="mt-1">
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="appearance-none block w-full px-3 py-3 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-70"
+              >
+                {isLoading ? 'Autenticando...' : 'Acessar Plataforma'}
+              </button>
+            </div>
+          </form>
+        </div>
+        <div className="mt-6 text-center">
+           <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">
+            Projeto de Graduação em Direito
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
-import { useEffect, useState } from 'react';
-import { supabase } from './supabase';
-import Auth from './Auth';
 
-function App() {
-  const [session, setSession] = useState(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-    });
-  }, []);
-
-  if (!session) return <Auth setSession={setSession} />;
-
-  return (
-    <div>
-      <h1>📚 Marcos Cruz SantosJurídico</h1>
-      <button onClick={() => supabase.auth.signOut()}>
-        Sair
-      </button>
-    </div>
-  );
-}
-
-export default App;
-npm install tailwindcss
-<div className="min-h-screen bg-gray-100 p-6">
-  <div className="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
-    <h1 className="text-2xl font-bold mb-4">📚 WeLib Jurídico</h1>
-
-    <input className="w-full p-2 border rounded mb-2" placeholder="Título" />
-    <textarea className="w-full p-2 border rounded mb-2" placeholder="Conteúdo" />
-
-    <button className="bg-blue-600 text-white px-4 py-2 rounded">
-      Salvar
-    </button>
-  </div>
-</div>
-npm run build
-4. ESTRUTURA DE TCC PRONTA
-📘 Título sugerido:
-
-“Desenvolvimento de Plataforma Jurídica Colaborativa Baseada em Inteligência Digital para Estudantes de Direito”
-
-📚 CAPÍTULOS
-🔹 CAPÍTULO 1 – INTRODUÇÃO
-Problema: dificuldade de acesso organizado ao conteúdo jurídico
-Objetivo: criar plataforma digital jurídica
-🔹 CAPÍTULO 2 – FUNDAMENTAÇÃO TEÓRICA
-Direito Digital
-Acesso à informação jurídica
-Ensino jurídico moderno
-
-Autores que você pode citar:
-
-Hans Kelsen
-Miguel Reale
-🔹 CAPÍTULO 3 – TECNOLOGIA
-Banco de dados (PostgreSQL)
-Backend (Supabase)
-Frontend (React)
-🔹 CAPÍTULO 4 – DESENVOLVIMENTO DO SISTEMA
-Estrutura do app
-Telas (login, conteúdo, busca)
-Funcionalidades
-🔹 CAPÍTULO 5 – RESULTADOS
-Testes
-Usabilidade
-Impacto no aprendizado
-🔹 CAPÍTULO 6 – CONCLUSÃO
-Benefícios para estudantes
-Futuro: IA jurídica
-🔥 DIFERENCIAL (SE VOCÊ USAR ISSO → NOTA ALTA)
-
-Inclua no seu projeto:
-
-🤖 IA que resume leis
-📊 sistema de estudo
-⚖️ base de jurisprudência
-Marcos Cruz Santos Direito-juridico/
- ├── src/
- │   ├── App.js
- │   ├── supabase.js
- │   ├── Auth.js
- │   ├── Dashboard.js
- │   ├── index.js
- ├── package.json
-npx create-react-app Marcos Cruz Santos Direito-juridico
-cd Marcos Cruz Santos Direito-juridico
-npm install @supabase/supabase-js
-
-campo	tipo
-id	uuid (pk)
-titulo	text
-texto	text
-categoria	text
-user_id	uuid
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = 'https://SEU-PROJETO.supabase.co';
-const supabaseKey = 'SUA-CHAVE';
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
-import { useState } from 'react';
-import { supabase } from './supabase';
-
-export default function Auth({ setSession }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  async function login() {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) return alert(error.message);
-    setSession(data.session);
-  }
-
-  async function register() {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (error) alert(error.message);
-    else alert('Conta criada!');
-  }
-
-  return (
-    <div style={{ padding: 20 }}>
-      <h2>Login</h2>
-      <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} /><br />
-      <input type="password" placeholder="Senha" onChange={(e) => setPassword(e.target.value)} /><br />
-      <button onClick={login}>Entrar</button>
-      <button onClick={register}>Cadastrar</button>
-    </div>
-  );
-}
-import { useEffect, useState } from 'react';
-import { supabase } from './supabase';
-
-export default function Dashboard({ session }) {
+// ==========================================
+// COMPONENTE PRINCIPAL (DASHBOARD)
+// ==========================================
+function Dashboard({ user, onLogout }) {
   const [conteudos, setConteudos] = useState([]);
   const [titulo, setTitulo] = useState('');
-  const [texto, setTexto] = useState('');
   const [categoria, setCategoria] = useState('');
+  const [texto, setTexto] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
+  // Busca os dados no banco de dados em tempo real
   useEffect(() => {
-    fetchConteudos();
-  }, []);
+    if (!user) return;
 
-  async function fetchConteudos() {
-    const { data } = await supabase
-      .from('conteudos')
-      .select('*')
-      .eq('user_id', session.user.id);
-
-    setConteudos(data);
-  }
-
-  async function addConteudo() {
-    await supabase.from('conteudos').insert([
-      {
-        titulo,
-        texto,
-        categoria,
-        user_id: session.user.id,
+    const conteudosRef = collection(db, 'artifacts', appId, 'users', user.uid, 'conteudos');
+    
+    const unsubscribe = onSnapshot(
+      conteudosRef,
+      (snapshot) => {
+        const data = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        // Ordena no frontend (mais recentes primeiro)
+        data.sort((a, b) => b.createdAt - a.createdAt);
+        setConteudos(data);
       },
-    ]);
+      (error) => {
+        console.error("Erro ao buscar conteúdos:", error);
+      }
+    );
 
-    setTitulo('');
-    setTexto('');
-    setCategoria('');
-    fetchConteudos();
-  }
+    return () => unsubscribe();
+  }, [user]);
 
-  async function deleteConteudo(id) {
-    await supabase.from('conteudos').delete().eq('id', id);
-    fetchConteudos();
-  }
+  const handleAddConteudo = async (e) => {
+    e.preventDefault();
+    if (!titulo.trim() || !texto.trim() || !categoria.trim()) return;
+
+    setIsSaving(true);
+    try {
+      const conteudosRef = collection(db, 'artifacts', appId, 'users', user.uid, 'conteudos');
+      await addDoc(conteudosRef, {
+        titulo,
+        categoria,
+        texto,
+        createdAt: Date.now()
+      });
+      setTitulo('');
+      setCategoria('');
+      setTexto('');
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'conteudos', id));
+    } catch (error) {
+      console.error("Erro ao excluir:", error);
+    }
+  };
+
+  const conteudosFiltrados = conteudos.filter(c => 
+    c.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    c.categoria.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>📚 WeLib Jurídico</h1>
-
-      <button onClick={() => supabase.auth.signOut()}>
-        Sair
-      </button>
-
-      <h2>Novo Conteúdo</h2>
-      <input placeholder="Título" value={titulo} onChange={(e) => setTitulo(e.target.value)} /><br />
-      <input placeholder="Categoria" value={categoria} onChange={(e) => setCategoria(e.target.value)} /><br />
-      <textarea placeholder="Texto" value={texto} onChange={(e) => setTexto(e.target.value)} /><br />
-
-      <button onClick={addConteudo}>Salvar</button>
-
-      <h2>Seus Conteúdos</h2>
-      {conteudos.map((item) => (
-        <div key={item.id} style={{ border: '1px solid #ccc', margin: 10, padding: 10 }}>
-          <h3>{item.titulo}</h3>
-          <p><b>{item.categoria}</b></p>
-          <p>{item.texto}</p>
-          <button onClick={() => deleteConteudo(item.id)}>Excluir</button>
+    <div className="min-h-screen bg-slate-50 font-sans">
+      {/* HEADER NAVBAR */}
+      <nav className="bg-indigo-800 text-white shadow-lg border-b border-indigo-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16 items-center">
+            <div className="flex items-center gap-3">
+              <Scale className="h-7 w-7 text-indigo-300" />
+              <div className="flex flex-col leading-tight">
+                <span className="text-lg font-bold tracking-tight">Direito Jurídico</span>
+                <span className="text-[10px] uppercase tracking-wider text-indigo-300 font-medium">Marcos Cruz Santos</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={onLogout}
+                className="flex items-center gap-2 bg-indigo-700 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              >
+                <LogOut className="h-4 w-4" />
+                Sair
+              </button>
+            </div>
+          </div>
         </div>
-      ))}
+      </nav>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
+        
+        {/* COLUNA ESQUERDA: FORMULÁRIO DE CADASTRO */}
+        <div className="w-full lg:w-1/3">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-8">
+            <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+              <BookOpen className="h-5 w-5 text-indigo-600" />
+              <h2 className="text-lg font-bold text-slate-800">Nova Documentação</h2>
+            </div>
+
+            <form onSubmit={handleAddConteudo} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1 flex items-center gap-2 tracking-wide">
+                  <FileText className="h-3.5 w-3.5" /> Título do Documento
+                </label>
+                <input
+                  type="text"
+                  value={titulo}
+                  onChange={(e) => setTitulo(e.target.value)}
+                  placeholder="Ex: Petição Inicial - Modelo X"
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1 flex items-center gap-2 tracking-wide">
+                  <Tag className="h-3.5 w-3.5" /> Classificação / Ramo
+                </label>
+                <input
+                  type="text"
+                  value={categoria}
+                  onChange={(e) => setCategoria(e.target.value)}
+                  placeholder="Ex: Direito Civil, Penal, Tributário..."
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1 tracking-wide">Conteúdo Doutrinário / Notas</label>
+                <textarea
+                  value={texto}
+                  onChange={(e) => setTexto(e.target.value)}
+                  placeholder="Descreva aqui o embasamento legal, jurisprudência ou anotações..."
+                  rows="8"
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-none text-sm"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 shadow-indigo-200 shadow-lg transition-all active:scale-95 disabled:opacity-70"
+              >
+                <Plus className="h-5 w-5" />
+                {isSaving ? 'Salvando...' : 'Registrar no Acervo'}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* COLUNA DIREITA: LISTAGEM DOS CONTEÚDOS */}
+        <div className="w-full lg:w-2/3">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 min-h-[600px]">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                  Acervo Digital Jurídico
+                  <span className="bg-slate-100 text-slate-600 text-[10px] font-bold py-1 px-2 rounded-md">
+                    {conteudos.length} ITENS
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">Base de conhecimento organizada por Marcos Cruz Santos</p>
+              </div>
+              
+              <div className="relative w-full sm:w-72">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-slate-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Pesquisar por título ou ramo..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm transition-all"
+                />
+              </div>
+            </div>
+
+            {conteudosFiltrados.length === 0 ? (
+              <div className="text-center py-24 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <div className="bg-white w-20 h-20 rounded-full shadow-sm flex items-center justify-center mx-auto mb-6">
+                  <BookOpen className="h-10 w-10 text-slate-300" />
+                </div>
+                <h3 className="text-slate-800 font-bold text-lg">Nenhum registro encontrado</h3>
+                <p className="text-slate-500 mt-2 max-w-xs mx-auto text-sm leading-relaxed">
+                  Sua biblioteca jurídica está vazia. Adicione novas doutrinas ou peças para visualizá-las aqui.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {conteudosFiltrados.map((item) => (
+                  <div key={item.id} className="group border border-slate-100 rounded-xl p-6 hover:border-indigo-200 hover:bg-indigo-50/30 transition-all bg-white relative shadow-sm hover:shadow-md">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                         <span className="inline-block bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-2">
+                          {item.categoria}
+                        </span>
+                        <h3 className="text-lg font-bold text-slate-900 group-hover:text-indigo-800 transition-colors pr-10">{item.titulo}</h3>
+                      </div>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="text-slate-300 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all absolute top-4 right-4"
+                        title="Remover do acervo"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                    
+                    <div className="bg-white/60 p-4 rounded-lg border border-slate-100">
+                       <p className="text-slate-700 text-sm whitespace-pre-wrap leading-relaxed italic border-l-4 border-indigo-200 pl-4">
+                        {item.texto}
+                      </p>
+                    </div>
+                    
+                    <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                       <span className="text-[10px] text-slate-400 font-medium">Documentado em {new Date(item.createdAt).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+      </main>
+      
+      <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-slate-200 text-center">
+        <p className="text-xs text-slate-500">
+          © 2024 Marcos Cruz Santos - Projeto de Extensão Acadêmica em Direito
+        </p>
+      </footer>
     </div>
   );
 }
-import { useEffect, useState } from 'react';
-import { supabase } from './supabase';
-import Auth from './Auth';
-import Dashboard from './Dashboard';
 
-function App() {
-  const [session, setSession] = useState(null);
+// ==========================================
+// COMPONENTE RAIZ (GERENCIA ESTADO DA SESSÃO)
+// ==========================================
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    // Escuta mudanças de autenticação
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsInitializing(false);
     });
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    return () => unsubscribe();
   }, []);
 
-  if (!session) return <Auth setSession={setSession} />;
+  // Função que engatilha a autenticação segura fornecida pela plataforma
+  const loginUser = async () => {
+    try {
+      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+        await signInWithCustomToken(auth, __initial_auth_token);
+      } else {
+        await signInAnonymously(auth);
+      }
+    } catch (error) {
+      console.error("Erro na autenticação:", error);
+    }
+  };
 
-  return <Dashboard session={session} />;
+  const logoutUser = async () => {
+    await signOut(auth);
+  };
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-700"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthScreen onLogin={loginUser} />;
+  }
+
+  return <Dashboard user={user} onLogout={logoutUser} />;
 }
-
-export default App;
-npm start
